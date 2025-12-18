@@ -90,35 +90,37 @@
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </div>
-
-                                <!-- Delete Modal for each deal -->
-                                <div class="modal fade" th:id="'deleteModal' + ${deal.id}" tabindex="-1" aria-hidden="true">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header bg-danger text-white">
-                                                <h5 class="modal-title"><i class="fas fa-exclamation-triangle me-2"></i>Подтверждение удаления</h5>
-                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <p>Вы действительно хотите удалить сделку:</p>
-                                                <p class="fw-bold" th:text="'№' + ${deal.id} + ' - ' + ${deal.property.title}">Сделка</p>
-                                                <p class="text-danger small"><i class="fas fa-exclamation-circle me-1"></i>Это действие нельзя отменить!</p>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                                                <form th:action="@{/deals/{id}/delete(id=${deal.id})}" method="post" class="d-inline">
-                                                    <button type="submit" class="btn btn-danger">
-                                                        <i class="fas fa-trash me-2"></i>Удалить
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
                             </td>
                         </tr>
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Modals (outside table) -->
+    <div th:each="deal : ${deals}">
+        <div class="modal fade" th:id="'deleteModal' + ${deal.id}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title"><i class="fas fa-exclamation-triangle me-2"></i>Подтверждение удаления</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Вы действительно хотите удалить сделку:</p>
+                        <p class="fw-bold" th:text="'№' + ${deal.id} + ' - ' + ${deal.property.title}">Сделка</p>
+                        <p class="text-danger small"><i class="fas fa-exclamation-circle me-1"></i>Это действие нельзя отменить!</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                        <form th:action="@{/deals/{id}/delete(id=${deal.id})}" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash me-2"></i>Удалить
+                            </button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
