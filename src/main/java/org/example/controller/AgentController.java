@@ -3,6 +3,7 @@ package org.example.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.model.Agent;
+import org.example.model.Deal;
 import org.example.service.AgentService;
 import org.example.service.DealService;
 import org.springframework.stereotype.Controller;
@@ -10,6 +11,9 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 @Controller
 @RequestMapping("/agents")
@@ -47,8 +51,22 @@ public class AgentController {
     public String view(@PathVariable Long id, Model model) {
         return agentService.findById(id)
                 .map(agent -> {
+                    List<Deal> deals = dealService.findByAgent(id);
+
+                    // Расчёт статистики
+                    BigDecimal totalCommission = deals.stream()
+                            .map(Deal::getCommission)
+                            .filter(c -> c != null)
+                            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+                    long completedDeals = deals.stream()
+                            .filter(d -> d.getStatus() == Deal.DealStatus.COMPLETED)
+                            .count();
+
                     model.addAttribute("agent", agent);
-                    model.addAttribute("agentDeals", dealService.findByAgent(id));
+                    model.addAttribute("agentDeals", deals);
+                    model.addAttribute("totalCommission", totalCommission);
+                    model.addAttribute("completedDeals", completedDeals);
                     return "agents/view";
                 })
                 .orElse("redirect:/agents");

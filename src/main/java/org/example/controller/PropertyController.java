@@ -20,12 +20,14 @@ public class PropertyController {
     @GetMapping
     public String list(Model model) {
         model.addAttribute("properties", propertyService.findAll());
+        model.addAttribute("propertyTypes", Property.PropertyType.values());
         return "properties/list";
     }
 
     @GetMapping("/available")
     public String listAvailable(Model model) {
         model.addAttribute("properties", propertyService.findAvailable());
+        model.addAttribute("propertyTypes", Property.PropertyType.values());
         return "properties/list";
     }
 

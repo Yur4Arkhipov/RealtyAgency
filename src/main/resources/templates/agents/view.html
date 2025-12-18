@@ -98,14 +98,14 @@
                         <div class="col-md-4 mb-3">
                             <div class="bg-success bg-opacity-10 rounded p-3">
                                 <i class="fas fa-ruble-sign fa-2x text-success mb-2"></i>
-                                <h4 class="mb-0" th:text="${agentDeals != null ? #numbers.formatDecimal(agentDeals.stream().filter(d -> d.commission != null).map(d -> d.commission).reduce(T(java.math.BigDecimal).ZERO, (a, b) -> a.add(b)), 1, 'COMMA', 0, 'POINT') : '0'} + ' ₽'">0 ₽</h4>
+                                <h4 class="mb-0"><span th:text="${#numbers.formatDecimal(totalCommission, 1, 'COMMA', 0, 'POINT')}">0</span> ₽</h4>
                                 <small class="text-muted">Комиссия</small>
                             </div>
                         </div>
                         <div class="col-md-4 mb-3">
                             <div class="bg-info bg-opacity-10 rounded p-3">
                                 <i class="fas fa-check-circle fa-2x text-info mb-2"></i>
-                                <h4 class="mb-0" th:text="${agentDeals != null ? agentDeals.stream().filter(d -> d.status.name() == 'COMPLETED').count() : 0}">0</h4>
+                                <h4 class="mb-0" th:text="${completedDeals}">0</h4>
                                 <small class="text-muted">Завершено</small>
                             </div>
                         </div>
