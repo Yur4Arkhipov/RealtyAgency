@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::content})}">
+<body>
+<div th:fragment="content">
+    <!-- Page Header -->
+    <div class="page-header">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/}">Главная</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/properties}">Недвижимость</a></li>
+                <li class="breadcrumb-item active" th:text="${property.id != null ? 'Редактирование' : 'Новый объект'}">Форма</li>
+            </ol>
+        </nav>
+        <h1>
+            <i class="fas fa-building me-2"></i>
+            <span th:text="${property.id != null ? 'Редактирование объекта' : 'Новый объект недвижимости'}">Форма</span>
+        </h1>
+    </div>
+
+    <!-- Form Card -->
+    <div class="card">
+        <div class="card-body">
+            <form th:action="${property.id != null ? '/properties/' + property.id : '/properties'}"
+                  th:object="${property}" method="post" class="needs-validation" novalidate>
+
+                <div class="row">
+                    <!-- Left Column -->
+                    <div class="col-md-8">
+                        <h5 class="text-primary mb-3"><i class="fas fa-info-circle me-2"></i>Основная информация</h5>
+
+                        <div class="mb-3">
+                            <label class="form-label">Название объекта <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" th:field="*{title}"
+                                   th:classappend="${#fields.hasErrors('title')} ? 'is-invalid' : ''"
+                                   placeholder="Например: Уютная квартира в центре города">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('title')}" th:errors="*{title}">Ошибка</div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Тип недвижимости <span class="text-danger">*</span></label>
+                                <select class="form-select" th:field="*{propertyType}"
+                                        th:classappend="${#fields.hasErrors('propertyType')} ? 'is-invalid' : ''">
+                                    <option value="">Выберите тип</option>
+                                    <option th:each="type : ${propertyTypes}" th:value="${type}" th:text="${type.displayName}">Тип</option>
+                                </select>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('propertyType')}" th:errors="*{propertyType}">Ошибка</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Статус <span class="text-danger">*</span></label>
+                                <select class="form-select" th:field="*{status}"
+                                        th:classappend="${#fields.hasErrors('status')} ? 'is-invalid' : ''">
+                                    <option th:each="status : ${propertyStatuses}" th:value="${status}" th:text="${status.displayName}">Статус</option>
+                                </select>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('status')}" th:errors="*{status}">Ошибка</div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Адрес <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" th:field="*{address}"
+                                   th:classappend="${#fields.hasErrors('address')} ? 'is-invalid' : ''"
+                                   placeholder="Город, улица, дом">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('address')}" th:errors="*{address}">Ошибка</div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Цена (₽) <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" th:field="*{price}" step="0.01" min="0"
+                                           th:classappend="${#fields.hasErrors('price')} ? 'is-invalid' : ''"
+                                           placeholder="5000000">
+                                    <span class="input-group-text">₽</span>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('price')}" th:errors="*{price}">Ошибка</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Площадь (м²) <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" th:field="*{area}" step="0.1" min="0"
+                                           th:classappend="${#fields.hasErrors('area')} ? 'is-invalid' : ''"
+                                           placeholder="50">
+                                    <span class="input-group-text">м²</span>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('area')}" th:errors="*{area}">Ошибка</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Комнат</label>
+                                <input type="number" class="form-control" th:field="*{rooms}" min="1"
+                                       th:classappend="${#fields.hasErrors('rooms')} ? 'is-invalid' : ''"
+                                       placeholder="3">
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('rooms')}" th:errors="*{rooms}">Ошибка</div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Этаж</label>
+                                <input type="number" class="form-control" th:field="*{floor}" min="1"
+                                       th:classappend="${#fields.hasErrors('floor')} ? 'is-invalid' : ''"
+                                       placeholder="5">
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('floor')}" th:errors="*{floor}">Ошибка</div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Этажей в доме</label>
+                                <input type="number" class="form-control" th:field="*{totalFloors}" min="1"
+                                       th:classappend="${#fields.hasErrors('totalFloors')} ? 'is-invalid' : ''"
+                                       placeholder="9">
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('totalFloors')}" th:errors="*{totalFloors}">Ошибка</div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Описание</label>
+                            <textarea class="form-control" th:field="*{description}" rows="5"
+                                      placeholder="Подробное описание объекта недвижимости..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="col-md-4">
+                        <h5 class="text-primary mb-3"><i class="fas fa-image me-2"></i>Изображение</h5>
+
+                        <div class="mb-3">
+                            <label class="form-label">URL изображения</label>
+                            <input type="url" class="form-control" th:field="*{imageUrl}"
+                                   placeholder="https://example.com/image.jpg"
+                                   id="imageUrlInput">
+                            <small class="text-muted">Вставьте ссылку на изображение объекта</small>
+                        </div>
+
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <img id="previewImage"
+                                     th:src="${property.imageUrl != null && !property.imageUrl.isEmpty() ? property.imageUrl : 'https://via.placeholder.com/300x200?text=Предпросмотр'}"
+                                     class="img-fluid rounded mb-2" style="max-height: 200px; object-fit: cover;" alt="Предпросмотр">
+                                <p class="small text-muted mb-0">Предпросмотр изображения</p>
+                            </div>
+                        </div>
+
+                        <div class="card mt-4 border-info">
+                            <div class="card-header bg-info text-white">
+                                <i class="fas fa-lightbulb me-2"></i>Подсказки
+                            </div>
+                            <div class="card-body">
+                                <ul class="small mb-0">
+                                    <li>Заполните все обязательные поля, отмеченные <span class="text-danger">*</span></li>
+                                    <li>Добавьте качественное фото для привлечения клиентов</li>
+                                    <li>Укажите максимально точный адрес</li>
+                                    <li>Подробное описание повышает интерес покупателей</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <hr class="my-4">
+                <div class="d-flex justify-content-between">
+                    <a th:href="@{/properties}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Отмена
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>
+                        <span th:text="${property.id != null ? 'Сохранить изменения' : 'Добавить объект'}">Сохранить</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('imageUrlInput').addEventListener('input', function() {
+            var url = this.value;
+            var preview = document.getElementById('previewImage');
+            if (url) {
+                preview.src = url;
+            } else {
+                preview.src = 'https://via.placeholder.com/300x200?text=Предпросмотр';
+            }
+        });
+    </script>
+</div>
+</body>
+</html>
+

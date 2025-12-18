@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::content})}">
+<body>
+<div th:fragment="content">
+    <!-- Page Header -->
+    <div class="page-header">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/}">Главная</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/clients}">Клиенты</a></li>
+                <li class="breadcrumb-item active" th:text="${client.id != null ? 'Редактирование' : 'Новый клиент'}">Форма</li>
+            </ol>
+        </nav>
+        <h1>
+            <i class="fas fa-user me-2"></i>
+            <span th:text="${client.id != null ? 'Редактирование клиента' : 'Новый клиент'}">Форма</span>
+        </h1>
+    </div>
+
+    <!-- Form Card -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    <form th:action="${client.id != null ? '/clients/' + client.id : '/clients'}"
+                          th:object="${client}" method="post">
+
+                        <h5 class="text-primary mb-3"><i class="fas fa-user me-2"></i>Контактные данные</h5>
+
+                        <div class="mb-3">
+                            <label class="form-label">ФИО <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" th:field="*{fullName}"
+                                   th:classappend="${#fields.hasErrors('fullName')} ? 'is-invalid' : ''"
+                                   placeholder="Петров Пётр Петрович">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}">Ошибка</div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Телефон <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                    <input type="tel" class="form-control" th:field="*{phone}"
+                                           th:classappend="${#fields.hasErrors('phone')} ? 'is-invalid' : ''"
+                                           placeholder="+79991234567">
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}">Ошибка</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Email</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                    <input type="email" class="form-control" th:field="*{email}"
+                                           th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''"
+                                           placeholder="client@example.com">
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">Ошибка</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Тип клиента</label>
+                            <select class="form-select" th:field="*{clientType}">
+                                <option th:each="type : ${clientTypes}" th:value="${type}" th:text="${type.displayName}">Тип</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Заметки</label>
+                            <textarea class="form-control" th:field="*{notes}" rows="4"
+                                      placeholder="Дополнительная информация о клиенте, предпочтения, бюджет..."></textarea>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <hr class="my-4">
+                        <div class="d-flex justify-content-between">
+                            <a th:href="@{/clients}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Отмена
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>
+                                <span th:text="${client.id != null ? 'Сохранить изменения' : 'Добавить клиента'}">Сохранить</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Info Card -->
+            <div class="card border-info">
+                <div class="card-header bg-info text-white">
+                    <i class="fas fa-info-circle me-2"></i>Типы клиентов
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-start mb-3">
+                        <span class="badge bg-success me-2">Покупатель</span>
+                        <small class="text-muted">Клиент, который ищет недвижимость для покупки</small>
+                    </div>
+                    <div class="d-flex align-items-start mb-3">
+                        <span class="badge bg-warning me-2">Продавец</span>
+                        <small class="text-muted">Клиент, который продаёт свою недвижимость</small>
+                    </div>
+                    <div class="d-flex align-items-start">
+                        <span class="badge bg-info me-2">Оба</span>
+                        <small class="text-muted">Клиент и покупает, и продаёт недвижимость</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tips Card -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <i class="fas fa-lightbulb me-2 text-warning"></i>Советы
+                </div>
+                <div class="card-body">
+                    <ul class="small mb-0">
+                        <li class="mb-2">Указывайте корректный номер телефона для связи</li>
+                        <li class="mb-2">В заметках можно указать предпочтения по недвижимости</li>
+                        <li>Email поможет отправлять предложения клиенту</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+

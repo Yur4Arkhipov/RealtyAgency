@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::content})}">
+<body>
+<div th:fragment="content">
+    <!-- Page Header -->
+    <div class="page-header">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/}">Главная</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/agents}">Агенты</a></li>
+                <li class="breadcrumb-item active" th:text="${agent.fullName}">Агент</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-4">
+            <!-- Agent Card -->
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <img th:src="${agent.photoUrl != null && !agent.photoUrl.isEmpty() ? agent.photoUrl : 'https://via.placeholder.com/200x200?text=Фото'}"
+                         class="rounded-circle mb-3" alt="Фото агента" style="width: 200px; height: 200px; object-fit: cover;">
+                    <span class="badge mb-2" th:classappend="${agent.active} ? 'bg-success' : 'bg-secondary'"
+                          th:text="${agent.active} ? 'Активен' : 'Неактивен'">Статус</span>
+                    <h3 th:text="${agent.fullName}">Имя агента</h3>
+                    <p class="text-muted" th:if="${agent.commissionRate != null}">
+                        <i class="fas fa-percent me-1"></i>Комиссия: <span th:text="${agent.commissionRate}">3</span>%
+                    </p>
+                </div>
+            </div>
+
+            <!-- Contact Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <i class="fas fa-address-card me-2"></i>Контакты
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="small text-muted">Телефон</label>
+                        <p class="mb-0">
+                            <i class="fas fa-phone text-success me-2"></i>
+                            <a th:href="'tel:' + ${agent.phone}" th:text="${agent.phone}">+7 999 123 45 67</a>
+                        </p>
+                    </div>
+                    <div th:if="${agent.email != null && !agent.email.isEmpty()}">
+                        <label class="small text-muted">Email</label>
+                        <p class="mb-0">
+                            <i class="fas fa-envelope text-primary me-2"></i>
+                            <a th:href="'mailto:' + ${agent.email}" th:text="${agent.email}">email@example.com</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions Card -->
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <i class="fas fa-cogs me-2"></i>Действия
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a th:href="@{/agents/{id}/edit(id=${agent.id})}" class="btn btn-primary">
+                            <i class="fas fa-edit me-2"></i>Редактировать
+                        </a>
+                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                            <i class="fas fa-trash me-2"></i>Удалить
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <!-- Bio Card -->
+            <div class="card mb-4" th:if="${agent.bio != null && !agent.bio.isEmpty()}">
+                <div class="card-header">
+                    <i class="fas fa-user me-2"></i>О себе
+                </div>
+                <div class="card-body">
+                    <p class="mb-0" th:text="${agent.bio}">Информация об агенте</p>
+                </div>
+            </div>
+
+            <!-- Statistics Card -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-chart-bar me-2"></i>Статистика
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4 mb-3">
+                            <div class="bg-primary bg-opacity-10 rounded p-3">
+                                <i class="fas fa-handshake fa-2x text-primary mb-2"></i>
+                                <h4 class="mb-0" th:text="${agentDeals != null ? agentDeals.size() : 0}">0</h4>
+                                <small class="text-muted">Сделок</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="bg-success bg-opacity-10 rounded p-3">
+                                <i class="fas fa-ruble-sign fa-2x text-success mb-2"></i>
+                                <h4 class="mb-0" th:text="${agentDeals != null ? #numbers.formatDecimal(agentDeals.stream().filter(d -> d.commission != null).map(d -> d.commission).reduce(T(java.math.BigDecimal).ZERO, (a, b) -> a.add(b)), 1, 'COMMA', 0, 'POINT') : '0'} + ' ₽'">0 ₽</h4>
+                                <small class="text-muted">Комиссия</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="bg-info bg-opacity-10 rounded p-3">
+                                <i class="fas fa-check-circle fa-2x text-info mb-2"></i>
+                                <h4 class="mb-0" th:text="${agentDeals != null ? agentDeals.stream().filter(d -> d.status.name() == 'COMPLETED').count() : 0}">0</h4>
+                                <small class="text-muted">Завершено</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Agent Deals -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-history me-2"></i>Сделки агента</span>
+                    <a th:href="@{/deals}" class="btn btn-sm btn-outline-primary">Все сделки</a>
+                </div>
+                <div class="card-body" th:if="${agentDeals != null && !agentDeals.isEmpty()}">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>№</th>
+                                    <th>Объект</th>
+                                    <th>Клиент</th>
+                                    <th>Дата</th>
+                                    <th>Сумма</th>
+                                    <th>Статус</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="deal : ${agentDeals}">
+                                    <td th:text="${deal.id}">1</td>
+                                    <td>
+                                        <span th:text="${deal.property.title}">Объект</span>
+                                    </td>
+                                    <td th:text="${deal.client.fullName}">Клиент</td>
+                                    <td th:text="${#temporals.format(deal.dealDate, 'dd.MM.yyyy')}">01.01.2024</td>
+                                    <td>
+                                        <span class="fw-bold text-success" th:text="${#numbers.formatDecimal(deal.amount, 1, 'COMMA', 0, 'POINT')} + ' ₽'">5 000 000 ₽</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge"
+                                              th:classappend="${deal.status.name() == 'COMPLETED'} ? 'bg-success' : (${deal.status.name() == 'PENDING'} ? 'bg-warning' : (${deal.status.name() == 'IN_PROGRESS'} ? 'bg-info' : 'bg-danger'))"
+                                              th:text="${deal.status.displayName}">Статус</span>
+                                    </td>
+                                    <td>
+                                        <a th:href="@{/deals/{id}(id=${deal.id})}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-body text-center py-4" th:if="${agentDeals == null || agentDeals.isEmpty()}">
+                    <i class="fas fa-handshake fa-2x text-muted mb-2"></i>
+                    <p class="text-muted mb-0">У этого агента пока нет сделок</p>
+                </div>
+            </div>
+
+            <!-- Quick Contact -->
+            <div class="card border-success">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h5 class="mb-1">Связаться с агентом</h5>
+                            <p class="text-muted mb-0">Позвоните или напишите для консультации</p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <a th:href="'tel:' + ${agent.phone}" class="btn btn-success">
+                                <i class="fas fa-phone me-2"></i>Позвонить
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back Button -->
+    <div class="mt-4">
+        <a th:href="@{/agents}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Вернуться к списку
+        </a>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title"><i class="fas fa-exclamation-triangle me-2"></i>Подтверждение удаления</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Вы действительно хотите удалить агента:</p>
+                    <p class="fw-bold" th:text="${agent.fullName}">ФИО</p>
+                    <p class="text-danger small"><i class="fas fa-exclamation-circle me-1"></i>Это действие нельзя отменить!</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <form th:action="@{/agents/{id}/delete(id=${agent.id})}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash me-2"></i>Удалить
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::content})}">
+<body>
+<div th:fragment="content">
+    <!-- Page Header -->
+    <div class="page-header">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/}">Главная</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/agents}">Агенты</a></li>
+                <li class="breadcrumb-item active" th:text="${agent.id != null ? 'Редактирование' : 'Новый агент'}">Форма</li>
+            </ol>
+        </nav>
+        <h1>
+            <i class="fas fa-user-tie me-2"></i>
+            <span th:text="${agent.id != null ? 'Редактирование агента' : 'Новый агент'}">Форма</span>
+        </h1>
+    </div>
+
+    <!-- Form Card -->
+    <div class="card">
+        <div class="card-body">
+            <form th:action="${agent.id != null ? '/agents/' + agent.id : '/agents'}"
+                  th:object="${agent}" method="post">
+
+                <div class="row">
+                    <div class="col-md-8">
+                        <h5 class="text-primary mb-3"><i class="fas fa-user me-2"></i>Личная информация</h5>
+
+                        <div class="mb-3">
+                            <label class="form-label">ФИО <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" th:field="*{fullName}"
+                                   th:classappend="${#fields.hasErrors('fullName')} ? 'is-invalid' : ''"
+                                   placeholder="Иванов Иван Иванович">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}">Ошибка</div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Телефон <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                    <input type="tel" class="form-control" th:field="*{phone}"
+                                           th:classappend="${#fields.hasErrors('phone')} ? 'is-invalid' : ''"
+                                           placeholder="+79991234567">
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}">Ошибка</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Email</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                    <input type="email" class="form-control" th:field="*{email}"
+                                           th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''"
+                                           placeholder="agent@example.com">
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">Ошибка</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Комиссия (%)</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" th:field="*{commissionRate}" step="0.1" min="0" max="100"
+                                           th:classappend="${#fields.hasErrors('commissionRate')} ? 'is-invalid' : ''"
+                                           placeholder="3">
+                                    <span class="input-group-text">%</span>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('commissionRate')}" th:errors="*{commissionRate}">Ошибка</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Статус</label>
+                                <div class="form-check form-switch mt-2">
+                                    <input class="form-check-input" type="checkbox" th:field="*{active}" id="activeSwitch">
+                                    <label class="form-check-label" for="activeSwitch">
+                                        Активный агент
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">О себе</label>
+                            <textarea class="form-control" th:field="*{bio}" rows="4"
+                                      placeholder="Краткая информация об агенте, опыт работы, специализация..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <h5 class="text-primary mb-3"><i class="fas fa-image me-2"></i>Фотография</h5>
+
+                        <div class="mb-3">
+                            <label class="form-label">URL фотографии</label>
+                            <input type="url" class="form-control" th:field="*{photoUrl}"
+                                   placeholder="https://example.com/photo.jpg"
+                                   id="photoUrlInput">
+                        </div>
+
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <img id="previewPhoto"
+                                     th:src="${agent.photoUrl != null && !agent.photoUrl.isEmpty() ? agent.photoUrl : 'https://via.placeholder.com/150x150?text=Фото'}"
+                                     class="rounded-circle mb-2" style="width: 150px; height: 150px; object-fit: cover;" alt="Предпросмотр">
+                                <p class="small text-muted mb-0">Предпросмотр фотографии</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <hr class="my-4">
+                <div class="d-flex justify-content-between">
+                    <a th:href="@{/agents}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Отмена
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>
+                        <span th:text="${agent.id != null ? 'Сохранить изменения' : 'Добавить агента'}">Сохранить</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('photoUrlInput').addEventListener('input', function() {
+            var url = this.value;
+            var preview = document.getElementById('previewPhoto');
+            if (url) {
+                preview.src = url;
+            } else {
+                preview.src = 'https://via.placeholder.com/150x150?text=Фото';
+            }
+        });
+    </script>
+</div>
+</body>
+</html>
+

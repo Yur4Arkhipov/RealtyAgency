@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::content})}">
+<body>
+<div th:fragment="content">
+    <!-- Page Header -->
+    <div class="page-header">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/}">Главная</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/deals}">Сделки</a></li>
+                <li class="breadcrumb-item active" th:text="'Сделка №' + ${deal.id}">Сделка</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Deal Info Card -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-handshake me-2"></i>Сделка №<span th:text="${deal.id}">1</span></h5>
+                    <span class="badge badge-status"
+                          th:classappend="${deal.status.name() == 'COMPLETED'} ? 'bg-success' : (${deal.status.name() == 'PENDING'} ? 'bg-warning' : (${deal.status.name() == 'IN_PROGRESS'} ? 'bg-info' : 'bg-danger'))"
+                          th:text="${deal.status.displayName}">Статус</span>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="small text-muted">Дата сделки</label>
+                            <p class="mb-0 fw-bold">
+                                <i class="fas fa-calendar text-primary me-2"></i>
+                                <span th:text="${#temporals.format(deal.dealDate, 'dd MMMM yyyy', new java.util.Locale('ru'))}">01 января 2024</span>
+                            </p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="small text-muted">Сумма сделки</label>
+                            <p class="mb-0 fw-bold text-success h4">
+                                <span th:text="${#numbers.formatDecimal(deal.amount, 1, 'COMMA', 0, 'POINT')}">5 000 000</span> ₽
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row" th:if="${deal.commission != null}">
+                        <div class="col-12">
+                            <label class="small text-muted">Комиссия агентства</label>
+                            <p class="mb-0">
+                                <i class="fas fa-percentage text-info me-2"></i>
+                                <span th:text="${#numbers.formatDecimal(deal.commission, 1, 'COMMA', 0, 'POINT')}">150 000</span> ₽
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Property Card -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-building me-2"></i>Объект недвижимости
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <img th:src="${deal.property.imageUrl != null && !deal.property.imageUrl.isEmpty() ? deal.property.imageUrl : 'https://via.placeholder.com/200x150?text=Нет+фото'}"
+                                 class="img-fluid rounded" alt="Фото объекта" style="height: 150px; object-fit: cover; width: 100%;">
+                        </div>
+                        <div class="col-md-8">
+                            <h5 th:text="${deal.property.title}">Название объекта</h5>
+                            <p class="text-muted mb-2">
+                                <i class="fas fa-map-marker-alt me-2 text-danger"></i>
+                                <span th:text="${deal.property.address}">Адрес</span>
+                            </p>
+                            <div class="d-flex gap-3 mb-2">
+                                <span><i class="fas fa-ruler-combined me-1"></i><span th:text="${deal.property.area}">50</span> м²</span>
+                                <span th:if="${deal.property.rooms != null}"><i class="fas fa-door-open me-1"></i><span th:text="${deal.property.rooms}">3</span> комн.</span>
+                            </div>
+                            <a th:href="@{/properties/{id}(id=${deal.property.id})}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-external-link-alt me-1"></i>Перейти к объекту
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes Card -->
+            <div class="card mb-4" th:if="${deal.notes != null && !deal.notes.isEmpty()}">
+                <div class="card-header">
+                    <i class="fas fa-sticky-note me-2"></i>Примечания
+                </div>
+                <div class="card-body">
+                    <p class="mb-0" th:text="${deal.notes}">Примечания к сделке</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Client Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <i class="fas fa-user me-2"></i>Клиент
+                </div>
+                <div class="card-body">
+                    <h5 th:text="${deal.client.fullName}">Имя клиента</h5>
+                    <span class="badge mb-2"
+                          th:classappend="${deal.client.clientType.name() == 'BUYER'} ? 'bg-success' : (${deal.client.clientType.name() == 'SELLER'} ? 'bg-warning' : 'bg-info')"
+                          th:text="${deal.client.clientType.displayName}">Тип</span>
+                    <p class="mb-1">
+                        <i class="fas fa-phone text-muted me-2"></i>
+                        <a th:href="'tel:' + ${deal.client.phone}" th:text="${deal.client.phone}">+7 999 123 45 67</a>
+                    </p>
+                    <p class="mb-3" th:if="${deal.client.email != null && !deal.client.email.isEmpty()}">
+                        <i class="fas fa-envelope text-muted me-2"></i>
+                        <a th:href="'mailto:' + ${deal.client.email}" th:text="${deal.client.email}">email@example.com</a>
+                    </p>
+                    <a th:href="@{/clients/{id}(id=${deal.client.id})}" class="btn btn-outline-success btn-sm w-100">
+                        <i class="fas fa-user me-1"></i>Профиль клиента
+                    </a>
+                </div>
+            </div>
+
+            <!-- Agent Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <i class="fas fa-user-tie me-2"></i>Агент
+                </div>
+                <div class="card-body text-center">
+                    <img th:src="${deal.agent.photoUrl != null && !deal.agent.photoUrl.isEmpty() ? deal.agent.photoUrl : 'https://via.placeholder.com/100x100?text=Фото'}"
+                         class="rounded-circle mb-2" alt="Фото агента" style="width: 80px; height: 80px; object-fit: cover;">
+                    <h5 th:text="${deal.agent.fullName}">Имя агента</h5>
+                    <p class="mb-1">
+                        <i class="fas fa-phone text-muted me-2"></i>
+                        <a th:href="'tel:' + ${deal.agent.phone}" th:text="${deal.agent.phone}">+7 999 123 45 67</a>
+                    </p>
+                    <a th:href="@{/agents/{id}(id=${deal.agent.id})}" class="btn btn-outline-primary btn-sm w-100 mt-2">
+                        <i class="fas fa-user-tie me-1"></i>Профиль агента
+                    </a>
+                </div>
+            </div>
+
+            <!-- Actions Card -->
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <i class="fas fa-cogs me-2"></i>Действия
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a th:href="@{/deals/{id}/edit(id=${deal.id})}" class="btn btn-primary">
+                            <i class="fas fa-edit me-2"></i>Редактировать
+                        </a>
+                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                            <i class="fas fa-trash me-2"></i>Удалить
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back Button -->
+    <div class="mt-4">
+        <a th:href="@{/deals}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Вернуться к списку
+        </a>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title"><i class="fas fa-exclamation-triangle me-2"></i>Подтверждение удаления</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Вы действительно хотите удалить сделку:</p>
+                    <p class="fw-bold" th:text="'№' + ${deal.id} + ' - ' + ${deal.property.title}">Сделка</p>
+                    <p class="text-danger small"><i class="fas fa-exclamation-circle me-1"></i>Это действие нельзя отменить!</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <form th:action="@{/deals/{id}/delete(id=${deal.id})}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash me-2"></i>Удалить
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+

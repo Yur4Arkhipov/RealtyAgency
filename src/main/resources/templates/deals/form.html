@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::content})}">
+<body>
+<div th:fragment="content">
+    <!-- Page Header -->
+    <div class="page-header">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/}">Главная</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/deals}">Сделки</a></li>
+                <li class="breadcrumb-item active" th:text="${deal.id != null ? 'Редактирование' : 'Новая сделка'}">Форма</li>
+            </ol>
+        </nav>
+        <h1>
+            <i class="fas fa-handshake me-2"></i>
+            <span th:text="${deal.id != null ? 'Редактирование сделки' : 'Новая сделка'}">Форма</span>
+        </h1>
+    </div>
+
+    <!-- Form Card -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    <form th:action="${deal.id != null ? '/deals/' + deal.id : '/deals'}"
+                          th:object="${deal}" method="post">
+
+                        <h5 class="text-primary mb-3"><i class="fas fa-building me-2"></i>Объект недвижимости</h5>
+
+                        <div class="mb-4">
+                            <label class="form-label">Выберите объект <span class="text-danger">*</span></label>
+                            <select class="form-select" th:field="*{property}"
+                                    th:classappend="${#fields.hasErrors('property')} ? 'is-invalid' : ''">
+                                <option value="">-- Выберите объект --</option>
+                                <option th:each="prop : ${properties}"
+                                        th:value="${prop.id}"
+                                        th:text="${prop.title + ' (' + prop.address + ') - ' + #numbers.formatDecimal(prop.price, 1, 'COMMA', 0, 'POINT') + ' ₽'}">Объект</option>
+                            </select>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('property')}" th:errors="*{property}">Ошибка</div>
+                        </div>
+
+                        <h5 class="text-primary mb-3"><i class="fas fa-users me-2"></i>Участники сделки</h5>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Клиент <span class="text-danger">*</span></label>
+                                <select class="form-select" th:field="*{client}"
+                                        th:classappend="${#fields.hasErrors('client')} ? 'is-invalid' : ''">
+                                    <option value="">-- Выберите клиента --</option>
+                                    <option th:each="c : ${clients}"
+                                            th:value="${c.id}"
+                                            th:text="${c.fullName + ' (' + c.clientType.displayName + ')'}">Клиент</option>
+                                </select>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('client')}" th:errors="*{client}">Ошибка</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Агент <span class="text-danger">*</span></label>
+                                <select class="form-select" th:field="*{agent}"
+                                        th:classappend="${#fields.hasErrors('agent')} ? 'is-invalid' : ''">
+                                    <option value="">-- Выберите агента --</option>
+                                    <option th:each="a : ${agents}"
+                                            th:value="${a.id}"
+                                            th:text="${a.fullName}">Агент</option>
+                                </select>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('agent')}" th:errors="*{agent}">Ошибка</div>
+                            </div>
+                        </div>
+
+                        <h5 class="text-primary mb-3"><i class="fas fa-file-contract me-2"></i>Детали сделки</h5>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Дата сделки <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" th:field="*{dealDate}"
+                                       th:classappend="${#fields.hasErrors('dealDate')} ? 'is-invalid' : ''">
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('dealDate')}" th:errors="*{dealDate}">Ошибка</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Статус</label>
+                                <select class="form-select" th:field="*{status}">
+                                    <option th:each="st : ${dealStatuses}" th:value="${st}" th:text="${st.displayName}">Статус</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Сумма сделки (₽) <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" th:field="*{amount}" step="0.01" min="0"
+                                           th:classappend="${#fields.hasErrors('amount')} ? 'is-invalid' : ''"
+                                           placeholder="5000000">
+                                    <span class="input-group-text">₽</span>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('amount')}" th:errors="*{amount}">Ошибка</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Комиссия агентства (₽)</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" th:field="*{commission}" step="0.01" min="0"
+                                           placeholder="150000">
+                                    <span class="input-group-text">₽</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Примечания</label>
+                            <textarea class="form-control" th:field="*{notes}" rows="4"
+                                      placeholder="Дополнительная информация о сделке..."></textarea>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <hr class="my-4">
+                        <div class="d-flex justify-content-between">
+                            <a th:href="@{/deals}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Отмена
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>
+                                <span th:text="${deal.id != null ? 'Сохранить изменения' : 'Создать сделку'}">Сохранить</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Status Info Card -->
+            <div class="card border-info mb-4">
+                <div class="card-header bg-info text-white">
+                    <i class="fas fa-info-circle me-2"></i>Статусы сделок
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-start mb-3">
+                        <span class="badge bg-warning me-2">Ожидает</span>
+                        <small class="text-muted">Сделка создана, ждёт подтверждения</small>
+                    </div>
+                    <div class="d-flex align-items-start mb-3">
+                        <span class="badge bg-info me-2">В процессе</span>
+                        <small class="text-muted">Сделка в процессе оформления</small>
+                    </div>
+                    <div class="d-flex align-items-start mb-3">
+                        <span class="badge bg-success me-2">Завершена</span>
+                        <small class="text-muted">Сделка успешно закрыта</small>
+                    </div>
+                    <div class="d-flex align-items-start">
+                        <span class="badge bg-danger me-2">Отменена</span>
+                        <small class="text-muted">Сделка была отменена</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tips Card -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-lightbulb me-2 text-warning"></i>Советы
+                </div>
+                <div class="card-body">
+                    <ul class="small mb-0">
+                        <li class="mb-2">Выберите доступный объект недвижимости</li>
+                        <li class="mb-2">Укажите корректную дату сделки</li>
+                        <li class="mb-2">Комиссия рассчитывается от суммы сделки</li>
+                        <li>После завершения сделки объект будет помечен как проданный</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
