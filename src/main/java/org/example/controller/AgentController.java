@@ -23,6 +23,7 @@ public class AgentController {
     private final AgentService agentService;
     private final DealService dealService;
 
+
     @GetMapping
     public String list(Model model) {
         model.addAttribute("agents", agentService.findAll());

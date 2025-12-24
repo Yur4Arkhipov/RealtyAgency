@@ -9,7 +9,8 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "deals")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

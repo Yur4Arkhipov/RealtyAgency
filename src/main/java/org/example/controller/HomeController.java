@@ -24,7 +24,7 @@ public class HomeController {
         model.addAttribute("availableCount", propertyService.countAvailable());
         model.addAttribute("agentsCount", agentService.countActive());
         model.addAttribute("clientsCount", clientService.count());
-        model.addAttribute("dealsCount", dealService.count());
+        model.addAttribute("dealsCount", dealService.countCompleted());
         model.addAttribute("totalRevenue", dealService.calculateTotalRevenue());
         model.addAttribute("recentProperties", propertyService.findAvailable().stream().limit(6).toList());
         return "index";
